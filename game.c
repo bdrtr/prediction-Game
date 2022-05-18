@@ -6,27 +6,40 @@
 
 
 void turnUser(int *guessHuman) {
-    printf("enter your predict \n");
-    scanf("%d",guessHuman);
+    printf("enter your predict \n"); //for take a prediction from user
+    if(scanf("%d",guessHuman) != 1) {
+        printf("lütfen bir sayı giriniz, oyun sonlandırılıyor.\n");
+        exit(1);
+    }
+
+    if (*guessHuman > 100) {
+        *guessHuman = 100;
+    }
+    if (*guessHuman < 0) {
+        *guessHuman = 0;
+    }
+
 }
 
-void turnBot(int *guessBot, int min, int max) {
-    *guessBot = min+(rand()%(max-min));
+void turnBot(int *guessBot, int min, int max) { // min -> sensible minimum number, max -> sensible maximum number
+    *guessBot = min+(rand()%(max-min)); //random number between 0 and (max-min) then + min example -> i want to a number between 70 - 90
+    // random number 0 - 20 = 12 ,  70 + 12 = 82 my random number is 82
     printf("bot predicted %d \n",*guessBot);
 
 }
-int  update(int *guessed, int randomNumb, char who[], int *min, int *max) {
+int  update(int *guessed, int randomNumb, char who[], int *min, int *max) { // this control for about winner and for next move
     if (*guessed == randomNumb) {
         printf("congratulations %s you're winner. \n",who);
         return 1;
     }
     else if (*guessed < randomNumb) {
-        printf("it's big number INCREASE your predict.\n");
-        *min = (*guessed>*min) ? *guessed: *min;
+        printf("Random number is big number ,INCREASE your prediction.\n");
+        *min = (*guessed>*min) ? *guessed: *min; // if this min prediction is small enough it's is new basement minimum number for computer predictions
+        // if guess is small and ever holded number until now is bigger than of that
         return 2;
     }
     else if (*guessed > randomNumb) {
-        printf("it's small number DECREASE your predict.\n");
+        printf("Random number is small number ,DECREASE your prediction.\n");
         *max = (*guessed<*max ) ? *guessed: *max;
         return 3;
     }
@@ -37,14 +50,10 @@ int  update(int *guessed, int randomNumb, char who[], int *min, int *max) {
     }
 }
 
-int cmpfunc (const void * a, const void * b) {
-    return ( *(int*)a - *(int*)b );
-}
-
 int startGame() {
     int min = 0, max = 100;
     int flag=-1;
-    int *guess_list, *q;
+    int *guess_list, *q; // for hold the predictions
     int guessHuman, guessBot;
 
     guess_list = (int*)malloc(sizeof(int)*1);
@@ -56,7 +65,7 @@ int startGame() {
 
         if (turn % 2 != 0) {
             turnUser(&guessHuman);
-            guess_list[round] = guessHuman;
+            guess_list[round] = guessHuman; // round number index of list will fill with guess
             flag = update(&guessHuman, randomNumb,"user",&min,&max);
         } else {
             turnBot(&guessBot, min, max);
@@ -67,18 +76,16 @@ int startGame() {
         turn++;
         round++;
 
-        //printf("guess leng : %d \n", sizeof(guess_list) / sizeof(int));
 
-        q = (int *) malloc(sizeof(int)*round);
+        q = (int *) malloc(sizeof(int)*round+1); // for extends the prediction list for one integer size
         for (int i = 0; i < round; i++) {
-            q[i] = guess_list[i];
+            q[i] = guess_list[i]; // copy to new list
         }
 
-        free(guess_list);
+        free(guess_list); //this important avoid for stackoverflow
         guess_list = q;
-        q = NULL;
+        q = NULL; // q list have to leave free
 
-        //qsort(guess_list, round, sizeof(int), cmpfunc);
         printf("predicts:  \n");
 
         for (int i = 0; i < round; i++) {
@@ -87,22 +94,17 @@ int startGame() {
         printf("\n");
         printf("---------------\n");
 
-
     }
+
+    min = 0;
+    max = 100;
+    free(guess_list);
+
 
 
 }
 
 int main(int argc, char *argv[]) {
-
-    // oyun ekranı ok
-    // giriş ok
-    //rastgele sayı olustur ok
-    // tahmin kisi ok
-    // tahmin bilgisayar -
-    // bilinen sayılar ekrana yazılcak -
-    // az veya cok demek gerektiği yazılcak ok
-    // dogru bilen oyun sonunda kutlanıcak ok
 
     int request;
 
@@ -126,7 +128,7 @@ int main(int argc, char *argv[]) {
                 description();
                 break;
             case 3:
-                //about_text();
+                about_text();
                 break;
             case 4:
                 exit(0);
